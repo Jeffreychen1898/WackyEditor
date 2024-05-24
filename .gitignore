@@ -1,2 +1,6 @@
 obj/**
 Wacky
+**/.stackdump
+**/.DSYM
+**/.DS_Store
+!.gitignore

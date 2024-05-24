@@ -27,6 +27,9 @@ wedit: $(APP_NAME)
 .PHONY: clean
 clean:
 	rm -rf $(APP_NAME) $(OBJ_FOLDER)
+	find . -name '.DS_Store' -type f -delete
+	find . -name '.DSYM' -type f -delete
+	find . -name '.stackdump' -type f -delete
 
 .PHONY: run
 run: $(APP_NAME)
