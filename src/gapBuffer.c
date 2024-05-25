@@ -32,8 +32,9 @@ struct GapBuffer* gapBuf_createUintBuf(uint32_t _capacity)
 
 void gapBuf_moveLeft(struct GapBuffer* _buf, uint32_t _steps)
 {
+	if(_buf == NULL) return;
+
 	// make sure it does not go out of bounds
-	int64_t difference = _buf->gapStart - _steps;
 	if((int64_t)_buf->gapStart - (int64_t)_steps < 0)
 		_steps = _buf->gapStart;
 
@@ -62,6 +63,8 @@ void gapBuf_moveLeft(struct GapBuffer* _buf, uint32_t _steps)
 
 void gapBuf_moveRight(struct GapBuffer* _buf, uint32_t _steps)
 {
+	if(_buf == NULL) return;
+
 	// make sure it does not go out of bounds
 	if(_buf->gapStart + _steps > _buf->size)
 		_steps = _buf->size - _buf->gapStart;
@@ -88,7 +91,7 @@ void gapBuf_moveRight(struct GapBuffer* _buf, uint32_t _steps)
 void gapBuf_insertChar(struct GapBuffer* _buf, char _c)
 {
 	// make sure the buffer exist
-	if(_buf->charBuffer == NULL) return;
+	if(_buf == NULL || _buf->charBuffer == NULL) return;
 
 	// double gap size if ran out of space
 	if(_buf->gapSize <= 0)
@@ -104,7 +107,7 @@ void gapBuf_insertChar(struct GapBuffer* _buf, char _c)
 void gapBuf_insertUint(struct GapBuffer* _buf, uint32_t _v)
 {
 	// make sure the buffer exist
-	if(_buf->uintBuffer == NULL) return;
+	if(_buf == NULL || _buf->uintBuffer == NULL) return;
 
 	// double the gap size if ran out of space
 	if(_buf->gapSize <= 0)
@@ -117,24 +120,10 @@ void gapBuf_insertUint(struct GapBuffer* _buf, uint32_t _v)
 	++ _buf->size;
 }
 
-char gapBuf_currChar(struct GapBuffer* _buf)
-{
-	if(_buf->size == 0) return '\0';
-
-	return _buf->charBuffer[_buf->gapStart - 1];
-}
-
-uint32_t gapBuf_currUint(struct GapBuffer* _buf)
-{
-	if(_buf->size == 0) return 0;
-
-	return _buf->uintBuffer[_buf->gapStart - 1];
-}
-
 char gapBuf_charAt(struct GapBuffer* _buf, uint32_t _idx)
 {
 	// error checking
-	if(_buf->charBuffer == NULL) return '\0';
+	if(_buf == NULL || _buf->charBuffer == NULL) return '\0';
 	if(_idx >= _buf->size) return '\0';
 
 	// if on the back side, increase index by size of gap
@@ -147,7 +136,7 @@ char gapBuf_charAt(struct GapBuffer* _buf, uint32_t _idx)
 uint32_t gapBuf_uintAt(struct GapBuffer* _buf, uint32_t _idx)
 {
 	// error checking
-	if(_buf->uintBuffer == NULL) return 0;
+	if(_buf == NULL || _buf->uintBuffer == NULL) return 0;
 	if(_idx >= _buf->size) return 0;
 
 	// if on the back side, increase index by size of gap
@@ -160,7 +149,7 @@ uint32_t gapBuf_uintAt(struct GapBuffer* _buf, uint32_t _idx)
 void gapBuf_setChar(struct GapBuffer* _buf, uint32_t _idx, char _c)
 {
 	// error checking
-	if(_buf->charBuffer == NULL) return;
+	if(_buf == NULL || _buf->charBuffer == NULL) return;
 	if(_idx >= _buf->size) return;
 
 	// if on the back side, increase index by size of gap
@@ -173,7 +162,7 @@ void gapBuf_setChar(struct GapBuffer* _buf, uint32_t _idx, char _c)
 void gapBuf_setUint(struct GapBuffer* _buf, uint32_t _idx, uint32_t _v)
 {
 	// error checking
-	if(_buf->uintBuffer == NULL) return;
+	if(_buf == NULL || _buf->uintBuffer == NULL) return;
 	if(_idx >= _buf->size) return;
 
 	// if on the back side, increase index by size of gap
@@ -185,6 +174,7 @@ void gapBuf_setUint(struct GapBuffer* _buf, uint32_t _idx, uint32_t _v)
 
 void gapBuf_grow(struct GapBuffer* _buf, uint32_t _gapSize)
 {
+	if(_buf == NULL) return;
 	// ensure it is ACTUALLY growing
 	if(_gapSize <= _buf->gapSize)
 		return;
@@ -221,6 +211,8 @@ void gapBuf_grow(struct GapBuffer* _buf, uint32_t _gapSize)
 
 void gapBuf_remove(struct GapBuffer* _buf, uint32_t _count)
 {
+	if(_buf == NULL) return;
+
 	if(_count > _buf->gapStart)
 		_count = _buf->gapStart;
 
@@ -231,6 +223,8 @@ void gapBuf_remove(struct GapBuffer* _buf, uint32_t _count)
 
 void gapBuf_free(struct GapBuffer* _buf)
 {
+	if(_buf == NULL) return;
+
 	if(_buf->charBuffer != NULL)
 		free(_buf->charBuffer);
 

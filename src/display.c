@@ -78,7 +78,7 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 
 	if(textbuf_charAt(_buf, cursor_index) == '\n' || textbuf_charAt(_buf, cursor_index) == '\0')
 	{
-		move(_buf->currRow - _contentDisp->offsetY + 1, _buf->currCol - _contentDisp->offsetX + linenum_offset);
+		move(textbuf_row(_buf) - _contentDisp->offsetY + 1, textbuf_col(_buf) - _contentDisp->offsetX + linenum_offset);
 		addch(' ' | A_STANDOUT);
 	}
 }
@@ -113,7 +113,7 @@ void disp_renderBottomBar(struct TextBuffer* _buf)
 		addch(' ');
 	}
 	move(mainwinInfo.height - 2, mainwinInfo.width - 15);
-	printw("%d:%d", _buf->currRow + 1, _buf->currCol + 1);
+	printw("%d:%d", textbuf_row(_buf) + 1, textbuf_col(_buf) + 1);
 	attroff(COLOR_PAIR(1));
 }
 

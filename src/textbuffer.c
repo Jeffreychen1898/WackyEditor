@@ -17,6 +17,8 @@ struct TextBuffer* textbuf_init(uint32_t _charBufCapacity, uint32_t _lineCapacit
 
 void textbuf_addChar(struct TextBuffer* _buf, char _c)
 {
+	if(_buf == NULL) return;
+
 	gapBuf_insertChar(_buf->buffer, _c);
 
 	// update the row and column book keeping
@@ -40,7 +42,7 @@ void textbuf_addChar(struct TextBuffer* _buf, char _c)
 void textbuf_removeChar(struct TextBuffer* _buf)
 {
 	// if nothing in the buffer, can't delete anything
-	if(gapBuf_gapStart(_buf->buffer) == 0) return;
+	if(_buf == NULL || gapBuf_gapStart(_buf->buffer) == 0) return;
 
 	char remove_char = gapBuf_currChar(_buf->buffer);
 
@@ -66,7 +68,7 @@ void textbuf_removeChar(struct TextBuffer* _buf)
 
 void textbuf_cursorUp(struct TextBuffer* _buf)
 {
-	if(_buf->currRow == 0) return;
+	if(_buf == NULL || _buf->currRow == 0) return;
 
 	-- _buf->currRow;
 	gapBuf_moveLeft(_buf->lineColumns, 1);
@@ -82,6 +84,7 @@ void textbuf_cursorUp(struct TextBuffer* _buf)
 
 void textbuf_cursorDown(struct TextBuffer* _buf)
 {
+	if(_buf == NULL) return;
 	if(_buf->currRow >= gapBuf_size(_buf->lineColumns) - 1) return;
 
 	uint32_t curr_line_size = gapBuf_currUint(_buf->lineColumns);
@@ -101,6 +104,7 @@ void textbuf_cursorDown(struct TextBuffer* _buf)
 
 void textbuf_cursorLeft(struct TextBuffer* _buf)
 {
+	if(_buf == NULL) return;
 	if(gapBuf_gapStart(_buf->buffer) == 0)
 		return;
 
@@ -117,6 +121,7 @@ void textbuf_cursorLeft(struct TextBuffer* _buf)
 
 void textbuf_cursorRight(struct TextBuffer* _buf)
 {
+	if(_buf == NULL) return;
 	if(gapBuf_gapStart(_buf->buffer) >= gapBuf_size(_buf->buffer))
 		return;
 
@@ -132,36 +137,10 @@ void textbuf_cursorRight(struct TextBuffer* _buf)
 	gapBuf_moveRight(_buf->buffer, 1);
 }
 
-char textbuf_charAt(struct TextBuffer* _buf, uint32_t _idx)
-{
-	if(_buf->buffer == NULL) return '\0';
-
-	return gapBuf_charAt(_buf->buffer, _idx);
-}
-
-uint32_t textbuf_lineCount(struct TextBuffer* _buf)
-{
-	if(_buf->lineColumns == NULL) return 0;
-
-	return gapBuf_size(_buf->lineColumns);
-}
-
-uint32_t textbuf_size(struct TextBuffer* _buf)
-{
-	if(_buf->buffer == NULL) return 0;
-
-	return gapBuf_size(_buf->buffer);
-}
-
-uint32_t textbuf_cursorPos(struct TextBuffer* _buf)
-{
-	if(_buf->buffer == NULL) return 0;
-
-	return gapBuf_gapStart(_buf->buffer);
-}
-
 void textbuf_free(struct TextBuffer* _buf)
 {
+	if(_buf == NULL) return;
+
 	gapBuf_free(_buf->buffer);
 	gapBuf_free(_buf->lineColumns);
 

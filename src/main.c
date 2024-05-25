@@ -68,8 +68,8 @@ int main()
 
 		disp_update();
 
-		uint32_t curr_row = textbuf->currRow;
-		uint32_t curr_col = textbuf->currCol;
+		uint32_t curr_row = textbuf_row(textbuf);
+		uint32_t curr_col = textbuf_col(textbuf);
 
 		uint32_t linenum_offset = log10(textbuf_lineCount(textbuf)) + 2;
 		content_disp.width = disp_width() - linenum_offset;
