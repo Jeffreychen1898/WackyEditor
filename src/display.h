@@ -6,6 +6,10 @@
 #include <math.h>
 
 #include "textbuffer.h"
+#include "debugBuffer.h"
+
+#define HIGHLIGHT_NONE 0
+#define HIGHLIGHT_KEYWORD 1
 
 struct WindowInfo
 {
@@ -37,6 +41,9 @@ void disp_renderBottomBar(struct TextBuffer* _buf);
 void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp);
 
 void disp_update();
+
+uint32_t disp_getWordColor(struct TextBuffer* _buf, uint32_t _idx);
+uint32_t disp_keycharHashValue(char _c);
 
 inline uint32_t disp_width() { return mainwinInfo.width; };
 inline uint32_t disp_height() { return mainwinInfo.height; };

@@ -10,7 +10,6 @@
 /*
 to do:
 
-debug buffer
 polishing
 syntax highlighting
 	keywords:
@@ -27,6 +26,7 @@ extern struct WindowInfo mainwinInfo;
 int main()
 {
 	disp_initialize();
+	debug_init(5);
 
 	struct TextBuffer* textbuf = textbuf_init(5, 5);
 
@@ -43,6 +43,8 @@ int main()
 
 	while(true)
 	{
+		debug_clear();
+
 		chtype currchar = getch();
 
 		if(currchar == KEY_LEFT)
@@ -85,6 +87,8 @@ int main()
 		if(curr_col < content_disp.offsetX)
 			content_disp.offsetX = curr_col;
 
+		debug_write("Hello: ", 7);
+
 		disp_render(textbuf, &content_disp);
 
 		move(mainwinInfo.height - 1, mainwinInfo.width - 10);
@@ -94,5 +98,6 @@ int main()
 	textbuf_free(textbuf);
 
 	disp_terminate();
+	debug_terminate();
 	return 0;
 }
