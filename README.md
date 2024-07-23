@@ -24,7 +24,6 @@ files with very long lines.
 
 # Known Bugs
 The text editor is not in its complete state, listed below are the known bugs:
- - comment and string syntax highlighting when the lines exceed the window's width
  - memory leaks when program terminates
 
 ## How to use

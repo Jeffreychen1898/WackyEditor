@@ -142,40 +142,35 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 
 		uint32_t highlight_color = HIGHLIGHT_NONE;
 
-		// linearly get to the correct state
-		//DFAState* dfa_currstate = dfa_getState(decider, 'N');
-		//uint32_t charbuf_idx = 0;
-		//for(int64_t i=0;i<row_begin + _contentDisp->offsetX;)
-		//{
-			//uint32_t next_pos = gapBuf_uintAt(_charbuf->charIndex, charbuf_idx);
-			//dfa_currstate = dfa_nextState(decider, dfa_currstate, textbuf_charAt(_buf, i));
-			//if(i == 0)
-				//i += next_pos;
-			//else
-				//i += next_pos + 1;
-			//++ charbuf_idx;
-		//}
-
-		while(dfa_idx < row_begin + _contentDisp->offsetX)
 		{
 			uint32_t next_pos = gapBuf_uintAt(_charbuf->charIndex, charbuf_idx);
-			dfa_currstate = dfa_nextState(decider, dfa_currstate, textbuf_charAt(_buf, dfa_idx));
+			if(charbuf_idx > 0) next_pos ++;
 
-			if(charbuf_idx == 0)
+			while(dfa_idx + next_pos < row_begin + _contentDisp->offsetX)
+			{
 				dfa_idx += next_pos;
-			else
-				dfa_idx += next_pos + 1;
-			++ charbuf_idx;
+
+				char next_char = textbuf_charAt(_buf, dfa_idx);
+				char state_label = dfa_currstate->label;
+				if(next_pos > 1 && (state_label == 'C' || state_label == 'E'))
+					dfa_currstate = dfa_nextState(decider, dfa_currstate, '\0');
+				dfa_currstate = dfa_nextState(decider, dfa_currstate, next_char);
+				++ charbuf_idx;
+
+				next_pos = gapBuf_uintAt(_charbuf->charIndex, charbuf_idx) + 1;
+			}
 		}
-		//dfa_idx = row_begin;
+
+		//dfa_idx = row_begin + _contentDisp->offsetX;
+		DFAState* tmp_state = dfa_currstate;
 
 		// render the content
 		for(int64_t i=row_begin + _contentDisp->offsetX;i<textbuf_size(_buf);++i)
 		{
-			char currlabel = dfa_currstate->label;
+			char currlabel = tmp_state->label;
 			//bool highlight = currstate->label == 'H';
-			dfa_currstate = dfa_nextState(decider, dfa_currstate, textbuf_charAt(_buf, i));
-			++ dfa_idx;
+			tmp_state = dfa_nextState(decider, tmp_state, textbuf_charAt(_buf, i));
+			//++ dfa_idx;
 
 			// out of bounds
 			if(i - _contentDisp->offsetX - row_begin >= _contentDisp->width)
@@ -187,8 +182,8 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 			char curr_char = textbuf_charAt(_buf, i);
 			chtype display_char = (chtype)curr_char;
 
-			if(curr_char == '/' || curr_char == '"' || curr_char == '\'' || curr_char == '*' || curr_char == '\n')
-				++ charbuf_idx;
+			/*if(curr_char == '/' || curr_char == '"' || curr_char == '\'' || curr_char == '*' || curr_char == '\n')
+				++ charbuf_idx;*/
 
 			// rendering the char
 			move(r - _contentDisp->offsetY + 1, i - _contentDisp->offsetX - row_begin + linenum_offset);
