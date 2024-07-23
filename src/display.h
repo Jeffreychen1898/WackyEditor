@@ -15,28 +15,6 @@
 #define HIGHLIGHT_NONE 0
 #define HIGHLIGHT_KEYWORD 1
 
-/*
- * create a gap buffer of state changes
- *
- * add char -> changes state? add state at cursor, set terminal
- * delete char -> if equal to state change, remove state change, set terminal
- *
- * for each line
- *		if(first char index < terminate)
- *			bst to get to first index
- *		else
- *			use this index: updateToHere(idx)
- *
- *		for each char in line
- *			if char index < terminal:
- *				handle as normally
- *
- *		get the start first state
- *		traverse through essential chars starting there, get to first char
- *		traverse until end of line
- *		rince and repeat
-*/
-
 struct WindowInfo
 {
 	uint32_t width;
