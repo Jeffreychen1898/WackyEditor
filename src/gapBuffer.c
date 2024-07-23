@@ -54,7 +54,7 @@ void gapBuf_moveLeft(struct GapBuffer* _buf, uint32_t _steps)
 		memcpy(
 			_buf->uintBuffer + dst_index,
 			_buf->uintBuffer + src_index,
-			sizeof(char) * _steps);
+			sizeof(uint32_t) * _steps);
 	}
 
 	// update the gap start position

@@ -3,8 +3,12 @@
 WINDOW* mainwin = NULL;
 struct WindowInfo mainwinInfo = { 0, 0 };
 
+DFADecider* decider;
+
 void disp_initialize()
 {
+	decider = dfa_compile("N[N:,C:/,D:\",Q:']C[N:,S:/,M:*]M[M:,E:*]E[M:,N:/]S[S:,N:\n]D[D:,N:\"]Q[Q:,N:']");
+
 	mainwin = initscr();
 
 	cbreak();
@@ -19,6 +23,9 @@ void disp_initialize()
 	init_pair(1, COLOR_BLACK, COLOR_CYAN);
 
 	init_pair(2, COLOR_RED, COLOR_BLACK);
+
+	init_pair(3, COLOR_GREEN, COLOR_BLACK);
+	init_pair(4, COLOR_YELLOW, COLOR_BLACK);
 }
 
 void disp_renderTopbar()
@@ -28,7 +35,7 @@ void disp_renderTopbar()
 	printw("NO NAME");
 }
 
-void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp)
+void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf)
 {
 	// apply some offset to the x for the line numbers
 	int64_t linenum_offset = log10(textbuf_lineCount(_buf)) + 2;
@@ -45,17 +52,130 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 		row_begin -= textbuf_rowSize(_buf, start_row) + 1;
 	}
 
+	uint32_t dfa_idx = 0;
+	DFAState* dfa_currstate = dfa_getState(decider, 'N');
+	uint32_t charbuf_idx = 0;
+
+	{
+		//LineState get_line_state = textbuf_requestState(_buf, r);
+		//dfa_idx = get_line_state.index;
+		//dfa_currstate = dfa_getState(decider, get_line_state.state);
+		//charbuf_idx = get_line_state.charbufidx;
+
+		// if char == \0
+
+		// insert base state
+		textbuf_removeState(_buf, start_row);
+		LineState prev_state = textbuf_requestState(_buf, start_row);
+
+		// for debugging
+		textbuf_removeState(_buf, 0);
+		prev_state = textbuf_requestState(_buf, start_row);
+
+		if(prev_state.state == '\0')
+			textbuf_insertState(_buf, 'N', 0, 0);
+		else
+		{
+			dfa_idx = prev_state.index;
+			dfa_currstate = dfa_getState(decider, prev_state.state);
+			charbuf_idx = prev_state.charbufidx;
+		}
+		
+		uint32_t line_idx = dfa_idx;
+
+		for(uint32_t i=0;i<start_row;++i)
+		{
+
+			uint32_t col_count = textbuf_rowSize(_buf, i);
+			uint32_t next_col_idx = line_idx + col_count + 1;
+			line_idx += col_count + 1;
+
+			uint32_t next_pos = gapBuf_uintAt(_charbuf->charIndex, charbuf_idx);
+			if(charbuf_idx > 0) next_pos ++;
+
+			while(dfa_idx + next_pos < next_col_idx)
+			{
+				dfa_idx += next_pos;
+
+				char next_char = textbuf_charAt(_buf, dfa_idx);
+				char state_label = dfa_currstate->label;
+				if(next_pos > 1 && (state_label == 'C' || state_label == 'E'))
+					dfa_currstate = dfa_nextState(decider, dfa_currstate, '\0');
+				dfa_currstate = dfa_nextState(decider, dfa_currstate, next_char);
+				++ charbuf_idx;
+
+				next_pos = gapBuf_uintAt(_charbuf->charIndex, charbuf_idx) + 1;
+			}
+
+			// cache line i + 1
+			//move(i + 1, 30);
+			//printw("%c %d %d", dfa_currstate->label, (int)line_idx, (int)(charbuf_idx - 1));
+			textbuf_insertState(_buf, dfa_currstate->label, line_idx, charbuf_idx);
+
+			/*move(3, 30);
+			printw("%c %d %d", prev_state.state, prev_state.index, prev_state.charbufidx);*/
+		}
+
+		// rm rf other lines
+	}
+
+	LineState ls = textbuf_requestState(_buf, start_row);
+
+	dfa_idx = ls.index;
+	dfa_currstate = dfa_getState(decider, ls.state);
+	charbuf_idx = ls.charbufidx;
+
 	// render each row
-	for(int64_t r=start_row;r<textbuf_lineCount(_buf);++r)
+	//for(int64_t r=start_row;r<textbuf_lineCount(_buf);++r)
+	/*move(30, 30);
+	printw("%d", (int)_contentDisp->height);*/
+	int64_t disp_height = _contentDisp->height;
+	if(_contentDisp->height > textbuf_lineCount(_buf) - start_row)
+		disp_height = textbuf_lineCount(_buf) - start_row;
+	
+	for(int64_t r=start_row;r<disp_height + start_row;++r)
 	{
 		// render the line number
 		move(r - _contentDisp->offsetY + 1, 0);
 		printw("%d", r + 1);
 
 		uint32_t highlight_color = HIGHLIGHT_NONE;
+
+		// linearly get to the correct state
+		//DFAState* dfa_currstate = dfa_getState(decider, 'N');
+		//uint32_t charbuf_idx = 0;
+		//for(int64_t i=0;i<row_begin + _contentDisp->offsetX;)
+		//{
+			//uint32_t next_pos = gapBuf_uintAt(_charbuf->charIndex, charbuf_idx);
+			//dfa_currstate = dfa_nextState(decider, dfa_currstate, textbuf_charAt(_buf, i));
+			//if(i == 0)
+				//i += next_pos;
+			//else
+				//i += next_pos + 1;
+			//++ charbuf_idx;
+		//}
+
+		while(dfa_idx < row_begin + _contentDisp->offsetX)
+		{
+			uint32_t next_pos = gapBuf_uintAt(_charbuf->charIndex, charbuf_idx);
+			dfa_currstate = dfa_nextState(decider, dfa_currstate, textbuf_charAt(_buf, dfa_idx));
+
+			if(charbuf_idx == 0)
+				dfa_idx += next_pos;
+			else
+				dfa_idx += next_pos + 1;
+			++ charbuf_idx;
+		}
+		//dfa_idx = row_begin;
+
 		// render the content
 		for(int64_t i=row_begin + _contentDisp->offsetX;i<textbuf_size(_buf);++i)
 		{
+			char currlabel = dfa_currstate->label;
+			//bool highlight = currstate->label == 'H';
+			dfa_currstate = dfa_nextState(decider, dfa_currstate, textbuf_charAt(_buf, i));
+			++ dfa_idx;
+
 			// out of bounds
 			if(i - _contentDisp->offsetX - row_begin >= _contentDisp->width)
 				break;
@@ -65,6 +185,9 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 			// get the char
 			char curr_char = textbuf_charAt(_buf, i);
 			chtype display_char = (chtype)curr_char;
+
+			if(curr_char == '/' || curr_char == '"' || curr_char == '\'' || curr_char == '*' || curr_char == '\n')
+				++ charbuf_idx;
 
 			// rendering the char
 			move(r - _contentDisp->offsetY + 1, i - _contentDisp->offsetX - row_begin + linenum_offset);
@@ -79,11 +202,20 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 
 			if(highlight_color == HIGHLIGHT_KEYWORD)
 				attron(COLOR_PAIR(2));
+			if(currlabel == 'M' || currlabel == 'S')
+				attron(COLOR_PAIR(4));
+			if(currlabel == 'D' || currlabel == 'Q')
+				attron(COLOR_PAIR(3));
 			addch(display_char);
 			if(highlight_color == HIGHLIGHT_KEYWORD)
 				attroff(COLOR_PAIR(2));
+			if(currlabel == 'M' || currlabel == 'S')
+				attroff(COLOR_PAIR(4));
+			if(currlabel == 'D' || currlabel == 'Q')
+				attroff(COLOR_PAIR(3));
 		}
-		row_begin += textbuf_rowSize(_buf, r) + 1;
+
+		row_begin += (int64_t)textbuf_rowSize(_buf, r) + 1;
 
 		if(r - _contentDisp->offsetY > _contentDisp->height)
 			break;
@@ -130,12 +262,12 @@ void disp_renderBottomBar(struct TextBuffer* _buf)
 	attroff(COLOR_PAIR(1));
 }
 
-void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp)
+void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf)
 {
 	disp_clear();
 
 	disp_renderTopbar();
-	disp_renderContent(_buf, _contentDisp);
+	disp_renderContent(_buf, _contentDisp, _charbuf);
 	disp_renderSubWindow(_contentDisp);
 	disp_renderBottomBar(_buf);
 
@@ -181,7 +313,8 @@ uint32_t disp_getWordColor(struct TextBuffer* _buf, uint32_t _idx)
 	}
 
 	// perform binary search
-	if(hash_value == 63003) return HIGHLIGHT_KEYWORD;
+	//if(hash_value == 1134474063039758270) return HIGHLIGHT_KEYWORD;
+	if(isKeyword(hash_value) == 1) return HIGHLIGHT_KEYWORD;
 	
 	return HIGHLIGHT_NONE;
 }

@@ -33,4 +33,5 @@ clean:
 
 .PHONY: run
 run: $(APP_NAME)
-	leaks -atExit -- ./$(APP_NAME)
+	./$(APP_NAME)
+	#leaks -atExit -- ./$(APP_NAME)
