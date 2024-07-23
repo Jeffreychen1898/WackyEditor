@@ -27,6 +27,7 @@ struct TextBuffer* textbuf_init(uint32_t _charBufCapacity, uint32_t _lineCapacit
 	new_buffer->lineStates = gapBuf_createCharBuf(_lineCapacity);
 	new_buffer->lineIndex = gapBuf_createUintBuf(_lineCapacity);
 	new_buffer->charbufIdx = gapBuf_createUintBuf(_lineCapacity);
+	new_buffer->linenum = gapBuf_createUintBuf(_lineCapacity);
 
 	gapBuf_insertUint(new_buffer->lineColumns, 0);
 
@@ -123,7 +124,8 @@ LineState textbuf_requestState(struct TextBuffer* _buf, uint32_t _line)
 		result.state = line_state;
 		result.index = line_index;
 		result.charbufidx = gapBuf_currUint(_buf->charbufIdx);
-		result.line = gapBuf_size(_buf->lineIndex) - 1;
+		result.line = gapBuf_currUint(_buf->linenum);
+		//result.line = gapBuf_size(_buf->lineIndex);
 		return result;
 	}
 
@@ -134,15 +136,17 @@ LineState textbuf_requestState(struct TextBuffer* _buf, uint32_t _line)
 	result.state = state;
 	result.index = idx;
 	result.charbufidx = gapBuf_uintAt(_buf->charbufIdx, _line);
-	result.line = gapBuf_size(_buf->lineIndex) - 1;
+	//result.line = gapBuf_size(_buf->lineIndex);
+	result.line = gapBuf_uintAt(_buf->linenum, _line);
 	return result;
 }
 
-void textbuf_insertState(struct TextBuffer* _buf, char _state, uint32_t _idx, uint32_t _charbufidx)
+void textbuf_insertState(struct TextBuffer* _buf, char _state, uint32_t _idx, uint32_t _charbufidx, uint32_t _line)
 {
 	gapBuf_insertUint(_buf->lineIndex, _idx);
 	gapBuf_insertChar(_buf->lineStates, _state);
 	gapBuf_insertUint(_buf->charbufIdx, _charbufidx);
+	gapBuf_insertUint(_buf->linenum, _line);
 }
 
 void textbuf_removeState(struct TextBuffer* _buf, uint32_t _line)
@@ -152,6 +156,7 @@ void textbuf_removeState(struct TextBuffer* _buf, uint32_t _line)
 		gapBuf_remove(_buf->lineIndex, 1);
 		gapBuf_remove(_buf->lineStates, 1);
 		gapBuf_remove(_buf->charbufIdx, 1);
+		gapBuf_remove(_buf->linenum, 1);
 	}
 }
 

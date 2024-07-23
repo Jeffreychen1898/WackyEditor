@@ -51,7 +51,7 @@ int main()
 	disp_render(textbuf, &content_disp, charbuf);
 
 	/* load file begin, for stress testing, will handle files next time */
-#if 0
+#if 1
 	FILE* fp;
 	char line[1024];
 

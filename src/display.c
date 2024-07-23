@@ -69,21 +69,24 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 		LineState prev_state = textbuf_requestState(_buf, start_row);
 
 		// for debugging
-		textbuf_removeState(_buf, 0);
-		prev_state = textbuf_requestState(_buf, start_row);
+		//textbuf_removeState(_buf, 0);
+		//prev_state = textbuf_requestState(_buf, start_row);
 
 		if(prev_state.state == '\0')
-			textbuf_insertState(_buf, 'N', 0, 0);
+			textbuf_insertState(_buf, 'N', 0, 0, 0);
 		else
 		{
 			dfa_idx = prev_state.index;
 			dfa_currstate = dfa_getState(decider, prev_state.state);
 			charbuf_idx = prev_state.charbufidx;
 		}
-		
-		uint32_t line_idx = dfa_idx;
 
-		for(uint32_t i=0;i<start_row;++i)
+		//move(30, 30);
+		//printw("%d", prev_state.line + 1);
+		
+		uint32_t line_idx = dfa_idx + 1;
+
+		for(uint32_t i=prev_state.line;i<start_row;++i)
 		{
 
 			uint32_t col_count = textbuf_rowSize(_buf, i);
@@ -108,9 +111,7 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 			}
 
 			// cache line i + 1
-			//move(i + 1, 30);
-			//printw("%c %d %d", dfa_currstate->label, (int)line_idx, (int)(charbuf_idx - 1));
-			textbuf_insertState(_buf, dfa_currstate->label, line_idx, charbuf_idx);
+			textbuf_insertState(_buf, dfa_currstate->label, dfa_idx, charbuf_idx, i + 1);
 
 			/*move(3, 30);
 			printw("%c %d %d", prev_state.state, prev_state.index, prev_state.charbufidx);*/

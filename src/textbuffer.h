@@ -24,6 +24,7 @@ struct TextBuffer
 	struct GapBuffer* lineStates;
 	struct GapBuffer* lineIndex;
 	struct GapBuffer* charbufIdx;
+	struct GapBuffer* linenum;
 };
 
 typedef struct
@@ -47,7 +48,7 @@ void textbuf_addChar(struct TextBuffer* _buf, char _c);
 void textbuf_removeChar(struct TextBuffer* _buf);
 
 LineState textbuf_requestState(struct TextBuffer* _buf, uint32_t _line);
-void textbuf_insertState(struct TextBuffer* _buf, char _state, uint32_t _idx, uint32_t _charbufidx);
+void textbuf_insertState(struct TextBuffer* _buf, char _state, uint32_t _idx, uint32_t _charbufidx, uint32_t _line);
 void textbuf_removeState(struct TextBuffer* _buf, uint32_t _line);
 
 // move cursor around
