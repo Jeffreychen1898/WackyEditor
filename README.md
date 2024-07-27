@@ -24,7 +24,7 @@ files with very long lines.
 
 # Known Bugs
 The text editor is not in its complete state, listed below are the known bugs:
- - memory leaks when program terminates
+ - none found at the moment
 
 ## How to use
 Install ncurses

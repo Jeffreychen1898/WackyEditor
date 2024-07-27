@@ -15,7 +15,7 @@ $(WEDIT_OBJ) : $(OBJ_FOLDER)/%.o : $(SRC_FOLDER)/%.c
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(APP_NAME) : $(WEDIT_OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^ -lncurses
+	$(CXX) $(CXXFLAGS) -o $@ $^ -lncurses -lm
 
 #helpful stuff
 .PHONY: all
