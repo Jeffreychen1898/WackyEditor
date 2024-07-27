@@ -3,4 +3,5 @@ Wacky
 **/.stackdump
 **/.DSYM
 **/.DS_Store
+**/.test.c
 !.gitignore

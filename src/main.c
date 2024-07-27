@@ -53,7 +53,7 @@ int main()
 	FILE* fp;
 	char line[1024];
 
-	fp = fopen("test2.c", "r");
+	fp = fopen("test2.test.c", "r");
 	if(fp == NULL)
 		return 2;
 	while(fgets(line, sizeof(line), fp) != NULL)
