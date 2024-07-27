@@ -156,6 +156,7 @@ int main()
 	}
 
 	textbuf_free(textbuf);
+	charbuf_free(charbuf);
 
 	disp_terminate();
 	debug_terminate();

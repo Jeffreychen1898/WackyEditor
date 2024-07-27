@@ -343,4 +343,7 @@ void disp_terminate()
 {
 	delwin(mainwin);
 	endwin();
+
+	if(decider)
+		dfa_freeDecider(decider);
 }

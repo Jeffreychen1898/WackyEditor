@@ -270,6 +270,11 @@ void textbuf_free(struct TextBuffer* _buf)
 	gapBuf_free(_buf->buffer);
 	gapBuf_free(_buf->lineColumns);
 
+	gapBuf_free(_buf->lineStates);
+	gapBuf_free(_buf->lineIndex);
+	gapBuf_free(_buf->charbufIdx);
+	gapBuf_free(_buf->linenum);
+
 	free(_buf);
 
 	//dfa_freeDecider(_buf->decider);
