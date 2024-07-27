@@ -14,8 +14,15 @@ void disp_initialize()
 	cbreak();
 	noecho();
 	curs_set(0);
+	keypad(stdscr, TRUE);
 	keypad(mainwin, TRUE);
 	set_escdelay(0);
+
+	int32_t winheight, winwidth;
+	getmaxyx(mainwin, winheight, winwidth);
+	mainwin = newwin(winheight, winwidth, 0, 0);
+
+	refresh();
 
 	start_color();
 	//if(has_color() == FALSE) printf("pathetic");
@@ -31,8 +38,8 @@ void disp_initialize()
 void disp_renderTopbar()
 {
 	// render top bar
-	move(0, 1);
-	printw("NO NAME");
+	wmove(mainwin, 0, 1);
+	wprintw(mainwin, "NO NAME");
 }
 
 void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf)
@@ -137,8 +144,8 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 	for(int64_t r=start_row;r<disp_height + start_row;++r)
 	{
 		// render the line number
-		move(r - _contentDisp->offsetY + 1, 0);
-		printw("%d", r + 1);
+		wmove(mainwin, r - _contentDisp->offsetY + 1, 0);
+		wprintw(mainwin, "%d", r + 1);
 
 		uint32_t highlight_color = HIGHLIGHT_NONE;
 
@@ -186,7 +193,7 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 				++ charbuf_idx;*/
 
 			// rendering the char
-			move(r - _contentDisp->offsetY + 1, i - _contentDisp->offsetX - row_begin + linenum_offset);
+			wmove(mainwin, r - _contentDisp->offsetY + 1, i - _contentDisp->offsetX - row_begin + linenum_offset);
 
 			if(i == cursor_index)
 				display_char |= A_STANDOUT;
@@ -197,18 +204,18 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 				highlight_color = HIGHLIGHT_NONE;
 
 			if(highlight_color == HIGHLIGHT_KEYWORD)
-				attron(COLOR_PAIR(2));
+				wattron(mainwin, COLOR_PAIR(2));
 			if(currlabel == 'M' || currlabel == 'S')
-				attron(COLOR_PAIR(4));
+				wattron(mainwin, COLOR_PAIR(4));
 			if(currlabel == 'D' || currlabel == 'Q')
-				attron(COLOR_PAIR(3));
-			addch(display_char);
+				wattron(mainwin, COLOR_PAIR(3));
+			waddch(mainwin, display_char);
 			if(highlight_color == HIGHLIGHT_KEYWORD)
-				attroff(COLOR_PAIR(2));
+				wattroff(mainwin, COLOR_PAIR(2));
 			if(currlabel == 'M' || currlabel == 'S')
-				attroff(COLOR_PAIR(4));
+				wattroff(mainwin, COLOR_PAIR(4));
 			if(currlabel == 'D' || currlabel == 'Q')
-				attroff(COLOR_PAIR(3));
+				wattroff(mainwin, COLOR_PAIR(3));
 		}
 
 		row_begin += (int64_t)textbuf_rowSize(_buf, r) + 1;
@@ -219,8 +226,8 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 
 	if(textbuf_charAt(_buf, cursor_index) == '\n' || textbuf_charAt(_buf, cursor_index) == '\0')
 	{
-		move(textbuf_row(_buf) - _contentDisp->offsetY + 1, textbuf_col(_buf) - _contentDisp->offsetX + linenum_offset);
-		addch(' ' | A_STANDOUT);
+		wmove(mainwin, textbuf_row(_buf) - _contentDisp->offsetY + 1, textbuf_col(_buf) - _contentDisp->offsetX + linenum_offset);
+		waddch(mainwin, ' ' | A_STANDOUT);
 	}
 }
 
@@ -238,8 +245,8 @@ void disp_renderSubWindow(struct ContentDisplay* _contentDisp)
 			continue;
 		}
 
-		move(row, col);
-		addch(get_char);
+		wmove(mainwin, row, col);
+		waddch(mainwin, get_char);
 		++ col;
 	}
 }
@@ -247,27 +254,29 @@ void disp_renderSubWindow(struct ContentDisplay* _contentDisp)
 void disp_renderBottomBar(struct TextBuffer* _buf)
 {
 	// render the bottom info bar
-	attron(COLOR_PAIR(1));
+	wattron(mainwin, COLOR_PAIR(1));
 	for(uint32_t i=0;i<mainwinInfo.width;++i)
 	{
-		move(mainwinInfo.height - 2, i);
-		addch(' ');
+		wmove(mainwin, mainwinInfo.height - 2, i);
+		waddch(mainwin, ' ');
 	}
-	move(mainwinInfo.height - 2, mainwinInfo.width - 15);
-	printw("%d:%d", textbuf_row(_buf) + 1, textbuf_col(_buf) + 1);
-	attroff(COLOR_PAIR(1));
+	wmove(mainwin, mainwinInfo.height - 2, mainwinInfo.width - 15);
+	wprintw(mainwin, "%d:%d", textbuf_row(_buf) + 1, textbuf_col(_buf) + 1);
+	wattroff(mainwin, COLOR_PAIR(1));
 }
 
 void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf)
 {
-	disp_clear();
+	//disp_clear();
+	werase(mainwin);
 
 	disp_renderTopbar();
 	disp_renderContent(_buf, _contentDisp, _charbuf);
 	disp_renderSubWindow(_contentDisp);
 	disp_renderBottomBar(_buf);
 
-	disp_refresh();
+	//disp_refresh();
+	wrefresh(mainwin);
 }
 
 void disp_update()
@@ -332,5 +341,6 @@ uint32_t disp_keycharHashValue(char _c)
 
 void disp_terminate()
 {
+	delwin(mainwin);
 	endwin();
 }

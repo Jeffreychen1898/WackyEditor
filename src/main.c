@@ -48,10 +48,8 @@ int main()
 		0
 	};
 
-	disp_render(textbuf, &content_disp, charbuf);
-
 	/* load file begin, for stress testing, will handle files next time */
-#if 0
+#if 1
 	FILE* fp;
 	char line[1024];
 
@@ -85,11 +83,13 @@ int main()
 #endif
 	/* load file end */
 
+	disp_render(textbuf, &content_disp, charbuf);
+
 	while(true)
 	{
-		debug_clear();
-
 		chtype currchar = getch();
+		
+		debug_clear();
 
 		if(currchar == KEY_LEFT)
 		{
@@ -108,7 +108,6 @@ int main()
 			textbuf_cursorDown(textbuf);
 			charbuf_down(charbuf, textbuf_cursorPos(textbuf));
 		}
-
 
 		if((currchar >= ' ' && currchar <= '~') || currchar == '\n')
 		{
@@ -154,20 +153,6 @@ int main()
 
 		move(mainwinInfo.height - 1, mainwinInfo.width - 10);
 		addch(currchar);
-
-		/*move(20, 0);
-		uint32_t idx = charbuf->idx;
-		int dist = (int)charbuf->dist;
-		int charsize = (int)gapBuf_size(charbuf->charBuffer);
-		printw("index: %d\ndist: %d\nsize: %d", idx, dist, charsize);
-
-		for(int i=0;i<gapBuf_size(charbuf->charIndex);++i)
-		{
-			move(25, i * 3);
-			printw("%d", gapBuf_uintAt(charbuf->charIndex, i));
-		}
-		move(26, 0);
-		printw("%d", gapBuf_gapStart(charbuf->charIndex));*/
 	}
 
 	textbuf_free(textbuf);
