@@ -9,6 +9,8 @@
 #include "dfa.h"
 #include "charbuffer.h"
 
+#include "controls.h"
+
 #define DEBUG_WIN_HEIGHT 10
 
 /*
@@ -49,7 +51,7 @@ int main()
 	};
 
 	/* load file begin, for stress testing, will handle files next time */
-#if 1
+#if 0
 	FILE* fp;
 	char line[1024];
 
@@ -91,42 +93,7 @@ int main()
 		
 		debug_clear();
 
-		if(currchar == KEY_LEFT)
-		{
-			textbuf_cursorLeft(textbuf);
-			charbuf_left(charbuf);
-		} else if(currchar == KEY_RIGHT)
-		{
-			textbuf_cursorRight(textbuf);
-			charbuf_right(charbuf);
-		} else if(currchar == KEY_UP)
-		{
-			textbuf_cursorUp(textbuf);
-			charbuf_up(charbuf, textbuf_cursorPos(textbuf));
-		} else if(currchar == KEY_DOWN)
-		{
-			textbuf_cursorDown(textbuf);
-			charbuf_down(charbuf, textbuf_cursorPos(textbuf));
-		}
-
-		if((currchar >= ' ' && currchar <= '~') || currchar == '\n')
-		{
-			textbuf_addChar(textbuf, (char)currchar);
-			charbuf_insert(charbuf, (char)currchar);
-		} else if(currchar == 127)
-		{
-			charbuf_remove(charbuf, textbuf_charAt(textbuf, textbuf_cursorPos(textbuf)));
-			textbuf_removeChar(textbuf);
-		} else if(currchar == 9)
-		{
-			for(uint32_t i=0;i<4;++i)
-			{
-				textbuf_addChar(textbuf, ' ');
-				charbuf_insert(charbuf, ' ');
-			}
-		}
-
-		if(currchar == 27) break;
+		if(processKey(currchar, textbuf, charbuf) == 0) break;
 
 		disp_update();
 

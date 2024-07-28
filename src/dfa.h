@@ -55,8 +55,8 @@ DFADecider* dfa_compile(const char* _dfastr);
 
 // counting states and transitions
 DFA_ERR_TYPE dfa_numStatesAndTransitions(const char* _dfastr, uint32_t* _numStates, uint32_t* _maxTransitions);
-extern inline uint32_t dfa_numStates(const DFADecider* _decider);
-extern inline uint32_t dfa_numTransitions(const DFAState* _state);
+extern uint32_t dfa_numStates(const DFADecider* _decider);
+extern uint32_t dfa_numTransitions(const DFAState* _state);
 
 // get states
 uint32_t dfa_nextStateIdx(DFAState* _currState, char _nextChar);
@@ -64,7 +64,7 @@ DFAState* dfa_nextState(const DFADecider* _decider, DFAState* _currState, char _
 DFAState* dfa_getState(const DFADecider* _decider, char _label);
 
 // hashing
-extern inline uint32_t dfa_hashChar(char _c);
+extern uint32_t dfa_hashChar(char _c);
 
 // free memory
 void dfa_freeDecider(DFADecider* _decider);

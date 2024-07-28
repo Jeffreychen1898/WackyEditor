@@ -15,16 +15,12 @@ struct TextBuffer
 	uint32_t currRow;
 	uint32_t currCol;
 
-	/*uint32_t cursorIdx;
-	DFAState* cursorState;*/
-
 	struct GapBuffer* buffer;
 	struct GapBuffer* lineColumns;
 
 	struct GapBuffer* lineStates;
 	struct GapBuffer* lineIndex;
 	struct GapBuffer* charbufIdx;
-	struct GapBuffer* linenum;
 };
 
 typedef struct
@@ -32,7 +28,6 @@ typedef struct
 	char state;
 	uint32_t index;
 	uint32_t charbufidx;
-	uint32_t line;
 } LineState;
 
 extern DFADecider* textbuf_decider;
@@ -48,7 +43,7 @@ void textbuf_addChar(struct TextBuffer* _buf, char _c);
 void textbuf_removeChar(struct TextBuffer* _buf);
 
 LineState textbuf_requestState(struct TextBuffer* _buf, uint32_t _line);
-void textbuf_insertState(struct TextBuffer* _buf, char _state, uint32_t _idx, uint32_t _charbufidx, uint32_t _line);
+void textbuf_insertState(struct TextBuffer* _buf, char _state, uint32_t _idx, uint32_t _charbufidx);
 void textbuf_removeState(struct TextBuffer* _buf, uint32_t _line);
 
 // move cursor around

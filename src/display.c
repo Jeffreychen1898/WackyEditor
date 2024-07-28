@@ -64,36 +64,22 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 	uint32_t charbuf_idx = 0;
 
 	{
-		//LineState get_line_state = textbuf_requestState(_buf, r);
-		//dfa_idx = get_line_state.index;
-		//dfa_currstate = dfa_getState(decider, get_line_state.state);
-		//charbuf_idx = get_line_state.charbufidx;
-
-		// if char == \0
-
 		// insert base state
 		textbuf_removeState(_buf, start_row);
 		LineState prev_state = textbuf_requestState(_buf, start_row);
 
-		// for debugging
-		//textbuf_removeState(_buf, 0);
-		//prev_state = textbuf_requestState(_buf, start_row);
-
 		if(prev_state.state == '\0')
-			textbuf_insertState(_buf, 'N', 0, 0, 0);
+			textbuf_insertState(_buf, 'N', 0, 0);
 		else
 		{
 			dfa_idx = prev_state.index;
 			dfa_currstate = dfa_getState(decider, prev_state.state);
 			charbuf_idx = prev_state.charbufidx;
 		}
-
-		//move(30, 30);
-		//printw("%d", prev_state.line + 1);
 		
 		uint32_t line_idx = dfa_idx + 1;
 
-		for(uint32_t i=prev_state.line;i<start_row;++i)
+		for(uint32_t i=gapBuf_size(_charbuf->charIndex)-1;i<start_row;++i)
 		{
 
 			uint32_t col_count = textbuf_rowSize(_buf, i);
@@ -118,13 +104,8 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 			}
 
 			// cache line i + 1
-			textbuf_insertState(_buf, dfa_currstate->label, dfa_idx, charbuf_idx, i + 1);
-
-			/*move(3, 30);
-			printw("%c %d %d", prev_state.state, prev_state.index, prev_state.charbufidx);*/
+			textbuf_insertState(_buf, dfa_currstate->label, dfa_idx, charbuf_idx);
 		}
-
-		// rm rf other lines
 	}
 
 	LineState ls = textbuf_requestState(_buf, start_row);
@@ -134,9 +115,6 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 	charbuf_idx = ls.charbufidx;
 
 	// render each row
-	//for(int64_t r=start_row;r<textbuf_lineCount(_buf);++r)
-	/*move(30, 30);
-	printw("%d", (int)_contentDisp->height);*/
 	int64_t disp_height = _contentDisp->height;
 	if(_contentDisp->height > textbuf_lineCount(_buf) - start_row)
 		disp_height = textbuf_lineCount(_buf) - start_row;
@@ -145,7 +123,7 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 	{
 		// render the line number
 		wmove(mainwin, r - _contentDisp->offsetY + 1, 0);
-		wprintw(mainwin, "%d", r + 1);
+		wprintw(mainwin, "%ld", r + 1);
 
 		uint32_t highlight_color = HIGHLIGHT_NONE;
 
@@ -168,16 +146,13 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 			}
 		}
 
-		//dfa_idx = row_begin + _contentDisp->offsetX;
 		DFAState* tmp_state = dfa_currstate;
 
 		// render the content
 		for(int64_t i=row_begin + _contentDisp->offsetX;i<textbuf_size(_buf);++i)
 		{
 			char currlabel = tmp_state->label;
-			//bool highlight = currstate->label == 'H';
 			tmp_state = dfa_nextState(decider, tmp_state, textbuf_charAt(_buf, i));
-			//++ dfa_idx;
 
 			// out of bounds
 			if(i - _contentDisp->offsetX - row_begin >= _contentDisp->width)
@@ -188,9 +163,6 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 			// get the char
 			char curr_char = textbuf_charAt(_buf, i);
 			chtype display_char = (chtype)curr_char;
-
-			/*if(curr_char == '/' || curr_char == '"' || curr_char == '\'' || curr_char == '*' || curr_char == '\n')
-				++ charbuf_idx;*/
 
 			// rendering the char
 			wmove(mainwin, r - _contentDisp->offsetY + 1, i - _contentDisp->offsetX - row_begin + linenum_offset);
@@ -318,7 +290,6 @@ uint32_t disp_getWordColor(struct TextBuffer* _buf, uint32_t _idx)
 	}
 
 	// perform binary search
-	//if(hash_value == 1134474063039758270) return HIGHLIGHT_KEYWORD;
 	if(isKeyword(hash_value) == 1) return HIGHLIGHT_KEYWORD;
 	
 	return HIGHLIGHT_NONE;

@@ -237,14 +237,14 @@ DFA_ERR_TYPE dfa_numStatesAndTransitions(const char* _dfastr, uint32_t* _numStat
 	return DFA_SUCCESS;
 }
 
-inline uint32_t dfa_numStates(const DFADecider* _decider)
+uint32_t dfa_numStates(const DFADecider* _decider)
 {
 	if(_decider == NULL) return 0;
 
 	return _decider->numStates;
 }
 
-inline uint32_t dfa_numTransitions(const DFAState* _state)
+uint32_t dfa_numTransitions(const DFAState* _state)
 {
 	if(_state == NULL) return 0;
 
@@ -283,7 +283,7 @@ DFAState* dfa_getState(const DFADecider* _decider, char _label)
 	return &_decider->dfa[state_index];
 }
 
-inline uint32_t dfa_hashChar(char _c)
+uint32_t dfa_hashChar(char _c)
 {
 	return (uint32_t)_c * 7 + 11;
 }
