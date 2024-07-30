@@ -42,7 +42,7 @@ void disp_renderTopbar()
 	wprintw(mainwin, "NO NAME");
 }
 
-void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf)
+void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf, int _insert)
 {
 	// apply some offset to the x for the line numbers
 	int64_t linenum_offset = log10(textbuf_lineCount(_buf)) + 2;
@@ -168,7 +168,12 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 			wmove(mainwin, r - _contentDisp->offsetY + 1, i - _contentDisp->offsetX - row_begin + linenum_offset);
 
 			if(i == cursor_index)
-				display_char |= A_STANDOUT;
+			{
+				if(_insert == 0)
+					display_char |= A_STANDOUT;
+				else
+					display_char |= A_UNDERLINE;
+			}
 
 			if(highlight_color == HIGHLIGHT_NONE)
 				highlight_color = disp_getWordColor(_buf, i);
@@ -199,7 +204,10 @@ void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _content
 	if(textbuf_charAt(_buf, cursor_index) == '\n' || textbuf_charAt(_buf, cursor_index) == '\0')
 	{
 		wmove(mainwin, textbuf_row(_buf) - _contentDisp->offsetY + 1, textbuf_col(_buf) - _contentDisp->offsetX + linenum_offset);
-		waddch(mainwin, ' ' | A_STANDOUT);
+		if(_insert == 0)
+			waddch(mainwin, ' ' | A_STANDOUT);
+		else
+			waddch(mainwin, ' ' | A_UNDERLINE);
 	}
 }
 
@@ -237,13 +245,13 @@ void disp_renderBottomBar(struct TextBuffer* _buf)
 	wattroff(mainwin, COLOR_PAIR(1));
 }
 
-void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf)
+void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf, int _insert)
 {
 	//disp_clear();
 	werase(mainwin);
 
 	disp_renderTopbar();
-	disp_renderContent(_buf, _contentDisp, _charbuf);
+	disp_renderContent(_buf, _contentDisp, _charbuf, _insert);
 	disp_renderSubWindow(_contentDisp);
 	disp_renderBottomBar(_buf);
 

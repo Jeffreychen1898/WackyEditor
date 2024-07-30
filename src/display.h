@@ -40,11 +40,11 @@ void disp_terminate();
 inline void disp_clear() { clear(); };
 inline void disp_refresh() { refresh(); };
 void disp_renderTopbar();
-void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf);
+void disp_renderContent(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf, int _insert);
 void disp_renderSubWindow();
 void disp_renderBottomBar(struct TextBuffer* _buf);
 
-void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf);
+void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, CharBuffer* _charbuf, int _insert);
 
 void disp_update();
 

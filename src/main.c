@@ -35,6 +35,7 @@ int main()
 	disp_initialize();
 	debug_init(5);
 	syntax_initialize();
+	ctrl_init();
 
 	struct TextBuffer* textbuf = textbuf_init(5, 5);
 
@@ -49,6 +50,8 @@ int main()
 		0,
 		0
 	};
+
+	int insert_mode = 0;
 
 	/* load file begin, for stress testing, will handle files next time */
 #if 0
@@ -85,15 +88,16 @@ int main()
 #endif
 	/* load file end */
 
-	disp_render(textbuf, &content_disp, charbuf);
+	disp_render(textbuf, &content_disp, charbuf, 0);
 
 	while(true)
 	{
 		chtype currchar = getch();
 		
 		debug_clear();
+		debug_write("Debug Window :P\n", 16);
 
-		if(processKey(currchar, textbuf, charbuf) == 0) break;
+		if(processKey(currchar, textbuf, charbuf, &insert_mode) == 0) break;
 
 		disp_update();
 
@@ -114,9 +118,7 @@ int main()
 		if(curr_col < content_disp.offsetX)
 			content_disp.offsetX = curr_col;
 
-		debug_write("Debug Window :P ", 16);
-
-		disp_render(textbuf, &content_disp, charbuf);
+		disp_render(textbuf, &content_disp, charbuf, insert_mode);
 
 		move(mainwinInfo.height - 1, mainwinInfo.width - 10);
 		addch(currchar);
@@ -124,6 +126,7 @@ int main()
 
 	textbuf_free(textbuf);
 	charbuf_free(charbuf);
+	ctrl_free();
 
 	disp_terminate();
 	debug_terminate();
