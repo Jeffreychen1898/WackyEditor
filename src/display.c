@@ -255,6 +255,9 @@ void disp_render(struct TextBuffer* _buf, struct ContentDisplay* _contentDisp, C
 	disp_renderSubWindow(_contentDisp);
 	disp_renderBottomBar(_buf);
 
+	wmove(mainwin, mainwinInfo.height - 1, 0);
+	wprintw(mainwin, "%s", ctrl_commands->buffer);
+
 	//disp_refresh();
 	wrefresh(mainwin);
 }

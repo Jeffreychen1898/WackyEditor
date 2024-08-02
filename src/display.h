@@ -9,11 +9,14 @@
 #include "debugBuffer.h"
 #include "syntaxReader.h"
 #include "charbuffer.h"
+#include "controls.h"
 
 #include "dfa.h"
 
 #define HIGHLIGHT_NONE 0
 #define HIGHLIGHT_KEYWORD 1
+
+extern StrBuf* ctrl_commands;
 
 struct WindowInfo
 {

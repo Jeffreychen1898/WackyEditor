@@ -27,21 +27,26 @@ int processKey(chtype _key, struct TextBuffer* _textbuf, CharBuffer* _charbuf, i
 		charbuf_down(_charbuf, textbuf_cursorPos(_textbuf));
 	}
 
-	if(*_insert == 0)
-		ctrl_execCommandMode(_key, _textbuf, _charbuf);
-	else
-		ctrl_execInsertMode(_key, _textbuf, _charbuf);
-
-	if(_key == 27)
+	if(strbuf_size(ctrl_commands) == 0)
 	{
-		if(*_insert == 0) *_insert = 1;
-		else if(*_insert == 1) *_insert = 0;
+		if(_key == 27 && *_insert == 1)
+		{
+			*_insert = 0;
+			return 1;
+		}
+		else if(_key == 'i' && *_insert == 0)
+		{
+			*_insert = 1;
+			return 1;
+		}
 	}
 
-	debug_write(ctrl_commands->buffer, strbuf_size(ctrl_commands));
-	debug_write("\n", 1);
-
-	if(_key == '|') return 0;
+	if(*_insert == 0)
+	{
+		if(ctrl_execCommandMode(_key, _textbuf, _charbuf) == 1)
+			return 0;
+	} else
+		ctrl_execInsertMode(_key, _textbuf, _charbuf);
 
 	return 1;
 }
@@ -66,22 +71,25 @@ void ctrl_execInsertMode(chtype _key, struct TextBuffer* _textbuf, CharBuffer* _
 	}
 }
 
-void ctrl_execCommandMode(chtype _key, struct TextBuffer* _textbuf, CharBuffer* _charbuf)
+int ctrl_execCommandMode(chtype _key, struct TextBuffer* _textbuf, CharBuffer* _charbuf)
 {
 	if(_key == ':' || strbuf_size(ctrl_commands) > 0)
 	{
 		if(_key == KEY_BACKSPACE)
 		{
 			strbuf_remove(ctrl_commands, 1);
-			return;
+			return 0;
 		}
 		if(_key == '\n')
 		{
+			if(strcmp(ctrl_commands->buffer, ":q") == 0)
+				return 1;
 			strbuf_clear(ctrl_commands);
-			return;
+			return 0;
 		}
 		// remember to restrict to only displayable chars
 		strbuf_add(ctrl_commands, (char)_key);
+		return 0;
 	}
 
 	if(_key == 'h')
@@ -101,6 +109,8 @@ void ctrl_execCommandMode(chtype _key, struct TextBuffer* _textbuf, CharBuffer* 
 		textbuf_cursorDown(_textbuf);
 		charbuf_down(_charbuf, textbuf_cursorPos(_textbuf));
 	}
+
+	return 0;
 }
 
 void ctrl_free()

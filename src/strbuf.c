@@ -20,6 +20,7 @@ void strbuf_add(StrBuf* _buf, char _c)
 
 	_buf->buffer[_buf->lastptr] = _c;
 	++ _buf->lastptr;
+	_buf->buffer[_buf->lastptr] = '\0';
 }
 
 void strbuf_remove(StrBuf* _buf, uint32_t _count)
@@ -29,10 +30,12 @@ void strbuf_remove(StrBuf* _buf, uint32_t _count)
 	if(_buf->lastptr < _count)
 	{
 		_buf->lastptr = 0;
+		_buf->buffer[0] = '\0';
 		return;
 	}
 
 	_buf->lastptr -= _count;
+	_buf->buffer[_buf->lastptr] = '\0';
 }
 
 void strbuf_clear(StrBuf* _buf)
@@ -40,6 +43,7 @@ void strbuf_clear(StrBuf* _buf)
 	if(_buf == NULL) return;
 
 	_buf->lastptr = 0;
+	_buf->buffer[0] = '\0';
 }
 
 void strbuf_free(StrBuf* _buf)
